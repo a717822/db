@@ -6,6 +6,8 @@ nodejs+mysql+express
 #npm install
 
 第二步：
-#npm index.js
+#node index.js
+
+下载速度比较慢解决方案：npm config set registry http://registry.npm.taobao.org/
 
 代码写了有点挫，还有一些代码需要改进，希望能够得到建议，谢谢

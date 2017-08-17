@@ -21,13 +21,82 @@
 </head>
 <body  class="login">
 <div id="app"></div>
+</body>
+
 <script type="text/babel">
+    var HelloMessage = React.createClass({
+        render: function() {
+            return  <div>
+                <a className="hiddenanchor" id="signup"></a>
+                <a className="hiddenanchor" id="signin"></a>
+
+                <div className="login_wrapper">
+                    <div className="animate form login_form">
+                        <section className="login_content">
+                            <form>
+                                <h1>登录</h1>
+                                <div>
+                                    <input type="text" className="form-control" placeholder="请输入用户名" required="" />
+                                </div>
+                                <div>
+                                    <input type="password" className="form-control" placeholder="请输入密码" required="" />
+                                </div>
+                                <div>
+                                    <a className="btn btn-default submit" href="#">登录</a>
+                                    <a className="reset_pass" href="#">忘记密码?</a>
+                                </div>
+
+                                <div className="clearfix"></div>
+
+                                <div className="separator">
+                                    <p className="change_link">第一次来到网站?
+                                        <a href="#signup" className="to_register"> 注册账户 </a>
+                                    </p>
+
+                                    <div className="clearfix"></div>
+                                    <br />
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                    <div id="register" className="animate form registration_form">
+                        <section className="login_content">
+                            <form>
+                                <h1>注册</h1>
+                                <div>
+                                    <input type="text" className="form-control" placeholder="请输入用户名" required="" />
+                                </div>
+                                <div>
+                                    <input type="email" className="form-control" placeholder="请输入电子邮箱" required="" />
+                                </div>
+                                <div>
+                                    <input type="password" className="form-control" placeholder="请输入密码" required="" />
+                                </div>
+                                <div>
+                                    <a className="btn btn-default submit" href="#">登录并注册</a>
+                                </div>
+
+                                <div className="clearfix"></div>
+
+                                <div className="separator">
+                                    <p className="change_link">已经注册过 ?
+                                        <a href="#signin" className="to_register"> 登录 </a>
+                                    </p>
+
+                                    <div className="clearfix"></div>
+                                    <br />
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </div>;
+        }
+    });
+
     ReactDOM.render(
-        <div>
-            <a class="hiddenanchor" id="signup">1111</a>
-        </div>,
-        document.getElementById('app')
+            <HelloMessage />, document.getElementById('app')
     );
 </script>
-</body>
+
 </html>

@@ -1,12 +1,16 @@
 var express = require('express');
 var app = express();
-var user = require('./Controller/UserController.js');
+var path = require('path');
+
+var user = require('./serve/Controller/UserController.js');
 var bodyParser = require('body-parser');
 // 创建 application/x-www-form-urlencoded 编码解析
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+app.use(express.static(path.join(__dirname,'public')));
+
 app.get('/', function (req, res) {
-    res.sendFile( __dirname + "/" + "index.html" );
+    res.sendFile( __dirname + "/public/views/login/" + "login.html" );
 });
 
 // 用户登录

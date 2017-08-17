@@ -69,7 +69,7 @@ function user(params) {
      */
     this.login = function (callback) {
         var ret = new  Object();
-
+        var _this = this;
         if((this.params.user_name == '') || (this.params.password == '')){
             ret.id = -1;
             ret.msg = '用户名和密码不得为空';
@@ -77,19 +77,16 @@ function user(params) {
             callback (ret);
         }else{
             var where  = "user_name = " + "'"+this.params.user_name + "'";
-
             db.database.db('user').querySql(where , function (data) {
 
                 if(data.length != 0){
-
-                    if(data[0].password == this.params.password){
+                    if(data[0].password == _this.params.password){
                         ret.id = 0;
                         ret.msg = '登录成功';
                     }else{
                         ret.id = -1;
                         ret.msg = '登录失败，输入密码错误';
                     }
-
                 }else{
                     ret.id = -1;
                     ret.msg = '该用户未注册';

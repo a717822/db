@@ -7,10 +7,10 @@ var bodyParser = require('body-parser');
 // 创建 application/x-www-form-urlencoded 编码解析
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname,'client')));
 
 app.get('/', function (req, res) {
-    res.sendFile( __dirname + "/public/views/login/" + "login.html" );
+    res.sendFile( __dirname + "/client/views/login/" + "login.html" );
 });
 
 // 用户登录

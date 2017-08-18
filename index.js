@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var path = require('path');
 
-var user = require('./serve/Controller/UserController.js');
+var admin = require('./serve/Controller/AdminController.js');
 var bodyParser = require('body-parser');
 // 创建 application/x-www-form-urlencoded 编码解析
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -21,7 +21,7 @@ app.post('/user_login', urlencodedParser , function (req, res) {
         password:req.body.password
     };
 
-    user.userController(response).login(function (data) {
+    admin.AdminController(response).login(function (data) {
         res.json(data);
     });
 });
@@ -34,7 +34,7 @@ app.post('/user_register',urlencodedParser,function (req,res) {
         email:req.body.email
     };
 
-    user.userController(response).register(function (data) {
+    admin.AdminController(response).register(function (data) {
         res.json(data);
     })
 

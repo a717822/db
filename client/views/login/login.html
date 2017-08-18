@@ -22,12 +22,13 @@
     <link href="../../css/custom.min.css" rel="stylesheet">
 </head>
 <body  class="login">
-<div id="app"></div>
+    <div id="app"></div>
 </body>
 
 <script type="text/babel">
     var HelloMessage = React.createClass({
-        //点击事件
+
+        //登录
         login:function () {
             // 请求路径
             var url = '/user_login';
@@ -39,10 +40,34 @@
                 url: url,
                 data: data,
                 success: function (data) {
-                    console.log(data);
+                    if(data.id != 0){
+                        alert(data.msg);
+                    }
                 }
             });
         },
+
+        //注册
+        register:function(){
+            // 请求路径
+            var url = '/user_register';
+            // 请求数据
+            var data = $('#register-form').serializeArray();
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                data: data,
+                success: function (data) {
+                    if(data.id == 0){
+                        window.location.href = '/home/index.html';
+                    }else{
+                        alert(data.msg);
+                    }
+                }
+            });
+        },
+
         //页面渲染
         render: function() {
             return  <div>
@@ -80,19 +105,19 @@
                     </div>
                     <div id="register" className="animate form registration_form">
                         <section className="login_content">
-                            <form>
+                            <form id="register-form">
                                 <h1>注册</h1>
                                 <div>
-                                    <input type="text" className="form-control" placeholder="请输入用户名" required="" />
+                                    <input type="text" className="form-control" placeholder="请输入用户名" name="username" required="" />
                                 </div>
                                 <div>
-                                    <input type="email" className="form-control" placeholder="请输入电子邮箱" required="" />
+                                    <input type="email" className="form-control" placeholder="请输入电子邮箱" name="email" required="" />
                                 </div>
                                 <div>
-                                    <input type="password" className="form-control" placeholder="请输入密码" required="" />
+                                    <input type="password" className="form-control" placeholder="请输入密码" name="password" required="" />
                                 </div>
                                 <div>
-                                    <a className="btn btn-default submit" href="#">登录并注册</a>
+                                    <a className="btn btn-default submit" onClick={this.register}>登录并注册</a>
                                 </div>
 
                                 <div className="clearfix"></div>

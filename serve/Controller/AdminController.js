@@ -2,8 +2,9 @@
  * Created by by on 2017/7/24.
  */
 var db = require("../db/db.js");
+var md5 = require("../tool/MD5.js");
 
-function user(params) {
+function admin(params) {
     this.params = params;
 
     /**
@@ -20,14 +21,14 @@ function user(params) {
 
             callback (ret);
         }else{
-            var addSql = [this.params.user_name,this.params.user_name,this.params.user_name,
-                this.params.email,this.params.password, '','',0,
-                '','','',new Date(),0,0,1];
+            var _pw =  md5.Md5(this.params.password);
+            var addSql = [this.params.user_name,'',_pw,'',
+                this.params.email,0,1,new Date(),'','',0];
 
             var is_unique = false;
-            var where  = "user_name = " + "'"+this.params.user_name + "'";
+            var where  = "username = " + "'"+this.params.user_name + "'";
 
-            db.database.db('user').querySql(where,function (data) {
+            db.database.db('admin').querySql(where,function (data) {
                 if(data.join('')){
                     is_unique = true;
                 }else{
@@ -40,7 +41,7 @@ function user(params) {
 
                     callback (ret);
                 }else{
-                    db.database.db('user').addData(addSql,function (data) {
+                    db.database.db('admin').addData(addSql,function (data) {
                         if(data){
 
                             ret.id = 0;
@@ -76,11 +77,11 @@ function user(params) {
 
             callback (ret);
         }else{
-            var where  = "user_name = " + "'"+this.params.user_name + "'";
-            db.database.db('user').querySql(where , function (data) {
+            var where  = "username = " + "'"+this.params.user_name + "'";
+            db.database.db('admin').querySql(where , function (data) {
 
                 if(data.length != 0){
-                    if(data[0].password == _this.params.password){
+                    if(data[0].password == md5.Md5(_this.params.password)){
                         ret.id = 0;
                         ret.msg = '登录成功';
                     }else{
@@ -107,6 +108,6 @@ function user(params) {
     }
 }
 
-exports.userController = function (params) {
-    return new user(params);
+exports.AdminController = function (params) {
+    return new admin(params);
 };

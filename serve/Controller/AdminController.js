@@ -84,6 +84,7 @@ function admin(params) {
                     if(data[0].password == md5.Md5(_this.params.password)){
                         ret.id = 0;
                         ret.msg = '登录成功';
+                        ret.user = data[0];
                     }else{
                         ret.id = -1;
                         ret.msg = '登录失败，输入密码错误';

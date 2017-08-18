@@ -26,7 +26,7 @@
 </body>
 
 <script type="text/babel">
-    var HelloMessage = React.createClass({
+    var Login = React.createClass({
 
         //登录
         login:function () {
@@ -40,7 +40,10 @@
                 url: url,
                 data: data,
                 success: function (data) {
-                    if(data.id != 0){
+                    if(data.id == 0){
+                        window.location.href = 'home';
+                        localStorage.userInfo = JSON.stringify(data.user);
+                    }else{
                         alert(data.msg);
                     }
                 }
@@ -139,7 +142,7 @@
     });
 
     ReactDOM.render(
-            <HelloMessage />, document.getElementById('app')
+            <Login />, document.getElementById('app')
     );
 </script>
 

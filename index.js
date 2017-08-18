@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var path = require('path');
-
 var admin = require('./serve/Controller/AdminController.js');
 var bodyParser = require('body-parser');
 // 创建 application/x-www-form-urlencoded 编码解析
@@ -11,6 +10,9 @@ app.use(express.static(path.join(__dirname,'client')));
 
 app.get('/', function (req, res) {
     res.sendFile( __dirname + "/client/views/login/" + "login.html" );
+});
+app.get('/home', function (req, res) {
+    res.sendFile( __dirname + "/client/views/home/" + "index.html" );
 });
 
 // 用户登录

@@ -20,3 +20,6 @@ nodejs+mysql+express+react+reactDom
 
 2017-08-17
 增加前台代码
+
+2017-08-20
+添加socket.io模块，完成简单的聊天室（仅支持多人聊天）

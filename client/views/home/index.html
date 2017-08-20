@@ -1,45 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <!-- Meta, title, CSS, favicons, etc. -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>主页</title>
+    <meta charset="UTF-8">
+    <title>首页</title>
 
     <script src="https://cdn.bootcss.com/react/15.4.2/react.min.js"></script>
     <script src="https://cdn.bootcss.com/react/15.4.2/react-dom.min.js"></script>
     <script src="https://cdn.bootcss.com/babel-standalone/6.22.1/babel.min.js"></script>
+    <script src="https://cdn.bootcss.com/socket.io/2.0.3/socket.io.js"></script>
+    <script src="../../vendors/jquery/dist/jquery.min.js"></script>
 
-    <!-- Bootstrap -->
-    <link href="../../vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="../../vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <!-- NProgress -->
-    <link href="../../vendors/nprogress/nprogress.css" rel="stylesheet">
-    <!-- iCheck -->
-    <link href="../../vendors/iCheck/skins/flat/green.css" rel="stylesheet">
-
-    <!-- bootstrap-progressbar -->
-    <link href="../../vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
-    <!-- JQVMap -->
-    <link href="../../vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
-    <!-- bootstrap-daterangepicker -->
-    <link href="../../vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
-
-    <!-- Custom Theme Style -->
-    <link href="../../css/custom.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font: 13px Helvetica, Arial; }
+        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+        #messages { list-style-type: none; margin: 0; padding: 0; }
+        #messages li { padding: 5px 10px; }
+        #messages li:nth-child(odd) { background: #eee; }
+        #messages { margin-bottom: 40px }
+    </style>
 </head>
-
-<body class="nav-md">
-    <div class="container body">
-        <div class="main_container"></div>
-    </div>
+<body>
+    <div id="chat"></div>
 </body>
+
 <script type="text/babel">
+    var socket = io();
+    var ChatWindow = React.createClass({
+        componentWillMount:function () {
+            // 判断是否登录；如果没登录则返回到登录页面
+            if(!localStorage.userInfo){
+                window.location.href = '/';
+            }
+        },
 
+        //页面渲染
+        render: function() {
+            return  <div>
+                <div>当前房间人数：1</div>
+                <div>广播：xx进入了房间</div>
+                <ul id="messages"></ul>
+                <form action="">
+                    <input id="m" autocomplete="off" /><button onclick={this.sendMsg}>发送</button>
+                </form>
+            </div>;
+        },
+
+        //发送消息
+        sendMsg:function () {
+
+        },
+    });
+    ReactDOM.render(
+            <ChatWindow />, document.getElementById('chat')
+    );
 </script>
-
 </html>

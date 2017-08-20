@@ -6,6 +6,10 @@ var bodyParser = require('body-parser');
 // 创建 application/x-www-form-urlencoded 编码解析
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var port = process.env.PORT || 8888;
+
 app.use(express.static(path.join(__dirname,'client')));
 
 app.get('/', function (req, res) {
@@ -42,11 +46,12 @@ app.post('/user_register',urlencodedParser,function (req,res) {
 
 });
 
-var server = app.listen(8888, function () {
+io.on('connection', function(socket){
+    socket.on('chat message', function(msg){
+        io.emit('chat message', msg);
+    });
+});
 
-    var host = server.address().address;
-    var port = server.address().port;
-
-    console.log("应用实例，访问地址为 http://%s:%s", host, port)
-
+http.listen(port, function(){
+    console.log('listening on *:' + port);
 });

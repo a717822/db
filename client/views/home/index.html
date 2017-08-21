@@ -36,6 +36,21 @@
             }
         },
 
+        componentDidMount:function () {
+            var userInfo = JSON.parse(localStorage.userInfo);
+            socket.emit('add_user',userInfo.username);
+
+            socket.on('new_message', function(data){
+//                console.log(data);
+                var li = "<li>"
+                    + data.user.username + ':'
+                    + '<span>'+data.msgbody.msg+'</span>' + '<span style="float:right">'+data.msgbody.time+'</span>'+
+                    "</li>";
+                $('#messages').append(li);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+        },
+
         //页面渲染
         render: function() {
             return  <div>
@@ -51,21 +66,41 @@
         //发送消息
         sendMsg:function () {
             var msg = $('#msg').val();
-            socket.emit('chat message',msg);
+            var userInfo = JSON.parse(localStorage.userInfo);
+
+            var data = {
+                user:userInfo,
+                msgbody:{
+                    msg:msg,
+                    time:getNowFormatDate()
+                }
+            }
+            socket.emit('new_message',data);
             $('#msg').val('');
         },
-
-        getMsg:function () {
-            socket.on('chat message', function(msg){
-                $('#messages').append($('<li>').text(msg));
-                window.scrollTo(0, document.body.scrollHeight);
-            });
-        }
 
     });
 
     ReactDOM.render(
             <ChatWindow />, document.getElementById('chat')
     );
+
+    function getNowFormatDate() {
+        var date = new Date();
+        var seperator1 = "-";
+        var seperator2 = ":";
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+            month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + date.getHours() + seperator2 + date.getMinutes()
+            + seperator2 + date.getSeconds();
+        return currentdate;
+    }
 </script>
 </html>

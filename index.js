@@ -46,10 +46,44 @@ app.post('/user_register',urlencodedParser,function (req,res) {
 
 });
 
+var userNum = 0;
+var users = new Array();
+var server_msg;
+var obj = {}
+
+// 群聊功能
 io.on('connection', function(socket){
-    socket.on('chat message', function(msg){
-        io.emit('chat message', msg);
+
+    // 添加用户
+    socket.on('add_user',function (name) {
+        users.push(name);
+        userNum = userNum + 1;
+        server_msg = name + '已经加入了房间';
+
+        obj.num = userNum;
+        obj.msg = server_msg;
+        console.log(server_msg);
+
+        socket.emit('add_user',obj);
     });
+
+    // 发送消息
+    socket.on('new_message', function(data){
+        io.emit('new_message', data);
+    });
+
+    // 断开连接
+    socket.on('disconnect',function (name) {
+        server_msg = name + '已经离开了房间';
+        userNum--;
+
+        obj.num = userNum;
+        obj.msg = server_msg;
+
+        console.log(name + '已经离开了房间');
+    });
+
+
 });
 
 http.listen(port, function(){

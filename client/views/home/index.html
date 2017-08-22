@@ -29,6 +29,13 @@
 <script type="text/babel">
     var socket = io();
     var ChatWindow = React.createClass({
+        getInitialState: function() {
+            return {
+                num: 0,
+                msg: ''
+            };
+        },
+
         componentWillMount:function () {
             // 判断是否登录；如果没登录则返回到登录页面
             if(!localStorage.userInfo){
@@ -38,8 +45,11 @@
 
         componentDidMount:function () {
             var userInfo = JSON.parse(localStorage.userInfo);
+
+            // 加入房间
             socket.emit('add_user',userInfo.username);
 
+            // 获取新的消息
             socket.on('new_message', function(data){
 //                console.log(data);
                 var li = "<li>"
@@ -49,13 +59,24 @@
                 $('#messages').append(li);
                 window.scrollTo(0, document.body.scrollHeight);
             });
+
+            // 退出房间
+            socket.emit('disconnect',userInfo.username);
+
+            // 获取加入房间状态
+            socket.on('add_room_status',(data) => {
+                this.setState({
+                    num:data.num,
+                    msg:data.msg
+                })
+            })
         },
 
         //页面渲染
         render: function() {
             return  <div>
-                <div>当前房间人数：1</div>
-                <div>广播：xx进入了房间</div>
+                <div>当前房间人数：{this.state.num}</div>
+                <div>广播：{this.state.msg}</div>
                 <ul id="messages"></ul>
                 <div className="chatinput">
                     <input id="msg" autocomplete="off" /><button onClick={this.sendMsg}>发送</button>
@@ -74,7 +95,7 @@
                     msg:msg,
                     time:getNowFormatDate()
                 }
-            }
+            };
             socket.emit('new_message',data);
             $('#msg').val('');
         },

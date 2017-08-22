@@ -47,24 +47,28 @@ app.post('/user_register',urlencodedParser,function (req,res) {
 });
 
 var userNum = 0;
-var users = new Array();
 var server_msg;
-var obj = {}
+var Server_obj = {};
+var userArr = new Array();
+var user = {};
 
-// 群聊功能
 io.on('connection', function(socket){
+    console.log('服务器连接成功');
 
     // 添加用户
     socket.on('add_user',function (name) {
-        users.push(name);
+        user.name = name;
+        user.id = socket.id;
+
+        userArr.push(user);
         userNum = userNum + 1;
         server_msg = name + '已经加入了房间';
 
-        obj.num = userNum;
-        obj.msg = server_msg;
+        Server_obj.num = userNum;
+        Server_obj.msg = server_msg;
         console.log(server_msg);
 
-        socket.emit('add_user',obj);
+        socket.emit('add_room_status',Server_obj);
     });
 
     // 发送消息
@@ -75,12 +79,7 @@ io.on('connection', function(socket){
     // 断开连接
     socket.on('disconnect',function (name) {
         server_msg = name + '已经离开了房间';
-        userNum--;
-
-        obj.num = userNum;
-        obj.msg = server_msg;
-
-        console.log(name + '已经离开了房间');
+        console.log(server_msg);
     });
 
 

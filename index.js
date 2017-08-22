@@ -46,29 +46,29 @@ app.post('/user_register',urlencodedParser,function (req,res) {
 
 });
 
-var userNum = 0;
-var server_msg;
-var Server_obj = {};
-var userArr = new Array();
-var user = {};
+var userNum = 0; // 人数
+var sys_msg;    // 系统消息
+var sys_obj = {};  // 系统消息
+var userArr = new Array();  // 用户数组
+var user = {};  // 用户信息
 
 io.on('connection', function(socket){
     console.log('服务器连接成功');
 
-    // 添加用户
+    // 用户加入群聊
     socket.on('add_user',function (name) {
-        user.name = name;
-        user.id = socket.id;
+            user.name = name;
+            user.id = socket.id;
 
-        userArr.push(user);
-        userNum = userNum + 1;
-        server_msg = name + '已经加入了房间';
+            userArr.push(user);
+            userNum = userNum + 1;
+            sys_msg = name + '已经加入了房间';
 
-        Server_obj.num = userNum;
-        Server_obj.msg = server_msg;
-        console.log(server_msg);
+            sys_obj.num = userNum;
+            sys_obj.msg = sys_msg;
+            console.log(sys_msg);
 
-        socket.emit('add_room_status',Server_obj);
+            socket.emit('system_msg', sys_obj);
     });
 
     // 发送消息
@@ -78,8 +78,8 @@ io.on('connection', function(socket){
 
     // 断开连接
     socket.on('disconnect',function (name) {
-        server_msg = name + '已经离开了房间';
-        console.log(server_msg);
+        sys_obj = name + '已经离开了房间';
+        console.log(sys_obj);
     });
 
 

@@ -64,7 +64,8 @@
             socket.emit('disconnect',userInfo.username);
 
             // 获取加入房间状态
-            socket.on('add_room_status',(data) => {
+            socket.on('system_msg',(data) => {
+                console.log(data);
                 this.setState({
                     num:data.num,
                     msg:data.msg

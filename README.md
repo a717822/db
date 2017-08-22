@@ -1,7 +1,9 @@
 # nodejs-demo
 描述： 
-nodejs对数据库的CURD操作，简单写了用户登录/注册/修改密码的功能
-nodejs+mysql+express+react+reactDom
+nodejs对数据库的CURD操作，简单写了用户登录/注册 的功能；
+利用socket.io实现简单的聊天室功能；
+
+nodejs+express+mysql+react+reactDom+socket.io
 
 未使用单页面构建应用
 

@@ -97,7 +97,7 @@ function admin(params) {
                 callback(ret);
             })
         }
-    },
+    }
 }
 
 exports.AdminController = function (params) {

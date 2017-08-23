@@ -50,7 +50,7 @@ var userNum = 0; // 人数
 var sys_msg;    // 系统消息
 var sys_obj = {};  // 系统消息
 var userArr = new Array();  // 用户数组
-var user = {};  // 用户信息
+var user = new Object();  // 用户信息
 
 io.on('connection', function(socket){
     console.log('服务器连接成功');
@@ -58,17 +58,36 @@ io.on('connection', function(socket){
     // 用户加入群聊
     socket.on('add_user',function (name) {
             user.name = name;
-            user.id = socket.id;
+            user.socket = socket;
+            user.online = '在线';
 
-            userArr.push(user);
-            userNum = userNum + 1;
-            sys_msg = name + '已经加入了房间';
+            if(userArr.length != 0){
+                for(var i = 0;i<=userArr.length - 1;i++){
+                    if(userArr[i].name != name){  // 避免同一用户多次添加
+                        userArr.push(user);
 
-            sys_obj.num = userNum;
-            sys_obj.msg = sys_msg;
+                        userNum = userNum + 1;
+                        sys_msg = name + '已经加入了房间';
+
+                        sys_obj.num = userNum;
+                        sys_obj.msg = sys_msg;
+                    }
+                }
+            }else{
+                userArr.push(user);
+
+                userNum = 1;
+                sys_msg = name + '已经加入了房间';
+
+                sys_obj.num = userNum;
+                sys_obj.msg = sys_msg;
+            }
+
+
             console.log(sys_msg);
 
             socket.emit('system_msg', sys_obj);
+            socket.broadcast.emit('broadcast',sys_msg);
     });
 
     // 发送消息
@@ -76,12 +95,37 @@ io.on('connection', function(socket){
         io.emit('new_message', data);
     });
 
-    // 断开连接
-    socket.on('disconnect',function (name) {
-        sys_obj = name + '已经离开了房间';
-        console.log(sys_obj);
+    // 私聊
+    socket.on('private_message',function (from,to,msg) {
+        for(var i = 0;i<=userArr.length - 1;i++){
+            if(userArr[i].name == to){
+                var socketId = userArr[i].socket;
+                socketId.emit('private_message',msg);
+            }
+        }
     });
 
+    // 断开连接
+    socket.on('disconnect',function (name) {
+
+        if(userArr.length != 0){
+            // 断开连接时，删除该用户
+            for(var i = 0;i<=userArr.length - 1;i++){
+                if(userArr[i].name == name){
+                    delete userArr[i];
+                }
+            }
+        }else{
+            userNum = 0;
+            sys_msg = name + '已经离开了房间';
+
+            sys_obj.num = userNum;
+            sys_obj.msg = sys_msg;
+        }
+
+
+        socket.broadcast.emit('broadcast',sys_msg);
+    });
 
 });
 

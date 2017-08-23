@@ -98,15 +98,6 @@ function admin(params) {
             })
         }
     },
-
-    /**
-     * 用户修改密码
-     * @param callback 回调函数
-     */
-    this.modPassword = function (callback) {
-        var ret = new  Object();
-
-    }
 }
 
 exports.AdminController = function (params) {

@@ -64,12 +64,14 @@
 
             // 获取系统消息
             socket.on('system_msg',(data) => {
-                console.log(data);
+//                console.log(data);
                 this.setState({
                     num:data.num,
                     msg:data.msg
                 })
             });
+
+            this.getMsg();
         },
 
         //页面渲染
@@ -101,6 +103,39 @@
             };
             socket.emit('new_message',data);
             $('#msg').val('');
+        },
+
+        // 获取历史消息
+        getMsg:function () {
+
+            // 请求路径
+            var url = '/getMsg';
+            // 请求数据
+            var data = {
+                type:1
+            };
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                data: data,
+                success: function (data) {
+                    if(data.id == 0){
+                        for(var i = 0;i<=data.msgBody.length - 1;i++){
+                            var li = "<li>"
+                                + data.msgBody[i].send_name + ':'
+                                + '<span>'+data.msgBody[i].message_content+'</span>' + '<span style="float:right">'+data.msgBody[i].add_time+'</span>'+
+                                "</li>";
+                            $('#messages').append(li);
+                            window.scrollTo(0, document.body.scrollHeight);
+                        }
+                    }else {
+                        alert(data.msg)
+                    }
+                }
+            })
+
         },
 
     });

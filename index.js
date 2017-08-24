@@ -133,6 +133,18 @@ io.on('connection', function(socket){
 
 });
 
+// 获取历史消息
+app.post('/getMsg',urlencodedParser,function (req,res) {
+    var response = {
+        send_id:req.body.send_id,
+        type:req.body.type
+    };
+
+    IM.IMController(response).getMsg(function (data) {
+        res.json(data);
+    });
+});
+
 http.listen(port, function(){
     console.log('listening on *:' + port);
 });

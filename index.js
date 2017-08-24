@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var admin = require('./serve/Controller/AdminController.js');
+var IM = require('./serve/Controller/IMController.js');
 var bodyParser = require('body-parser');
 // 创建 application/x-www-form-urlencoded 编码解析
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -93,6 +94,9 @@ io.on('connection', function(socket){
     // 发送消息
     socket.on('new_message', function(data){
         io.emit('new_message', data);
+        IM.IMController(data).sendMsg(function (res) {
+            console.log(res);
+        });
     });
 
     // 私聊

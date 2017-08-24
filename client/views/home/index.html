@@ -62,7 +62,7 @@
             // 退出房间
             socket.emit('disconnect',userInfo.username);
 
-            // 获取加入房间状态
+            // 获取系统消息
             socket.on('system_msg',(data) => {
                 console.log(data);
                 this.setState({
@@ -95,7 +95,8 @@
                 user:userInfo,
                 msgbody:{
                     msg:msg,
-                    time:getNowFormatDate()
+                    time:getNowFormatDate(),
+                    type:1
                 }
             };
             socket.emit('new_message',data);

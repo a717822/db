@@ -1,6 +1,6 @@
 // nodejs 连接数据库的方法
 var mysql =  require('mysql');
-var pool , sqlexpression , select , sqlData , keyString , valueString;
+var pool , sqlexpression , keyString , valueString;
 var keyName = new Array();
 var value = new  Array();
 
@@ -79,49 +79,40 @@ sql.prototype.count = function (callback) {
  * @param v  添加的值
  */
 sql.prototype.addData = function (v , callback) {
-    select = 'SELECT * FROM ' + this.tableName;
+    var querySql = 'SELECT COLUMN_NAME from information_schema.COLUMNS where table_name='+"'"+this.tableName+"'";
     var _this = this;
-    sqlConnection(select , function (data) {  // 获取选中数据库的键值对
-        sqlData = data[0];
+    sqlConnection(querySql , function (data) {  // 获取选中数据库的键值对
+        for(var i = 0;i<=data.length-1;i++){
+            var key = data[i].COLUMN_NAME;
+            keyName.push(key);
+        }
 
-        if(sqlData){
-            // 选择该数据表获取数据表的键值
-            for (var key1 in sqlData) {
-                if (sqlData.hasOwnProperty(key1)){
-                    keyName.push(key1);
-                }
+        keyString = '(' + keyName.join(',') + ')';
+
+        for(var i = 0;i<=keyName.length - 1 ;i++){
+            value.push('?');
+        }
+        value[0] = 0; //将数组第一个值赋值为0
+        valueString = '(' + value.join(',') + ')';
+
+        sqlexpression = 'INSERT INTO ' + _this.tableName + keyString + ' VALUES' + valueString;
+
+        sqlParamsConnection(sqlexpression , v , function (data) {
+            if(data.affectedRows == 1){
+                callback(JSON.stringify(data));
+            }else{
+                callback('');
             }
-            keyString = '(' + keyName.join(',') + ')';
 
-            for(var i = 0;i<=keyName.length - 1 ;i++){
-                value.push('?');
-            }
-            value[0] = 0; //将数组第一个值赋值为0
-            valueString = '(' + value.join(',') + ')';
+        });
 
-            sqlexpression = 'INSERT INTO ' + _this.tableName + keyString + ' VALUES' + valueString;
-
-            sqlParamsConnection(sqlexpression , v , function (data) {
-                    if(data.affectedRows == 1){
-                        callback(JSON.stringify(data));
-                    }else{
-                        callback('');
-                    }
-
-            });
-
-            // 添加完成后，清空数组
-            if(keyName.length != 0 || value.length != 0){
-                keyName.length = 0;
-                value.length = 0;
-            }
+        // 添加完成后，清空数组
+        if(keyName.length != 0 || value.length != 0){
+            keyName.length = 0;
+            value.length = 0;
         }
     });
 };
-
-// 取值
-// var temp=new String(data[0].username);
-// console.log(temp);
 
 /**
  * 删除数据

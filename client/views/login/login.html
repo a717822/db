@@ -63,7 +63,8 @@
                 data: data,
                 success: function (data) {
                     if(data.id == 0){
-                        window.location.href = '/home';
+                        window.location.href = 'home';
+                        localStorage.userInfo = JSON.stringify(data.user);
                     }else{
                         alert(data.msg);
                     }

@@ -41,13 +41,18 @@ function admin(params) {
 
                     callback (ret);
                 }else{
-                    db.database.db('admin').addData(addSql,function (data) {
-                        if(data){
+                    db.database.db('admin').addData(addSql,function (res) {
+                        if(res){
 
-                            ret.id = 0;
-                            ret.msg = '用户注册成功，请登录';
+                            db.database.db('admin').querySql(where,function (user) {
+                                ret.id = 0;
+                                ret.msg = '用户注册成功，请登录';
+                                ret.user = user[0];
 
-                            callback (ret);
+                                callback (ret);
+                            });
+
+
                         }else{
 
                             ret.id = -1;

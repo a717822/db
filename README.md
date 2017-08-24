@@ -1,6 +1,6 @@
 # nodejs-demo
 描述： 
-nodejs对数据库的CURD操作，简单写了用户登录/注册 的功能；
+nodejs对数据库的CURD操作，简单写了用户登录/注册、聊天 的功能；
 利用socket.io实现简单的聊天室功能；
 
 nodejs+express+mysql+react+reactDom+socket.io
@@ -27,4 +27,4 @@ nodejs+express+mysql+react+reactDom+socket.io
 添加socket.io模块，完成简单的聊天室（仅支持多人聊天）
 
 2017-08-24
-更改添加到数据库方法，增加聊天时，添加到数据库的代码
+更改添加到数据库方法，增加聊天时，添加到数据库的代码、获取历史聊天九路功能

@@ -25,3 +25,6 @@ nodejs+express+mysql+react+reactDom+socket.io
 
 2017-08-20
 添加socket.io模块，完成简单的聊天室（仅支持多人聊天）
+
+2017-08-24
+更改添加到数据库方法，增加聊天时，添加到数据库的代码

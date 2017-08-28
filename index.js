@@ -50,27 +50,19 @@ app.post('/user_register',urlencodedParser,function (req,res) {
 var sys_msg;    // 系统消息
 var sys_obj = {};  // 系统消息
 var userArr = new Array();  // 用户数组
-var user = new Object();  // 用户信息
 
 io.on('connection', function(socket){
     console.log('服务器连接成功');
 
     // 用户加入群聊
     socket.on('add_user',function (name) {
+            var user = new Object();  // 用户信息
             user.name = name;
             user.socket = socket;
             user.online = '在线';
+            userArr.push(user);
 
-            var arr = new Array();
-            arr.push(user);
-
-            console.log(arr);
-
-            for(var i=0;i<arr.length;i++){  // 删除数组里传重复添加元素
-                if(userArr.indexOf(arr[i]) == -1){
-                    userArr.push(arr[i]);
-                }
-            }
+            console.log(userArr);
 
             sys_msg = name + '已经加入了房间';
             sys_obj.num = userArr.length;

@@ -47,7 +47,6 @@ app.post('/user_register',urlencodedParser,function (req,res) {
 
 });
 
-var userNum = 0; // 人数
 var sys_msg;    // 系统消息
 var sys_obj = {};  // 系统消息
 var userArr = new Array();  // 用户数组
@@ -62,31 +61,22 @@ io.on('connection', function(socket){
             user.socket = socket;
             user.online = '在线';
 
-            if(userArr.length != 0){
-                for(var i = 0;i<=userArr.length - 1;i++){
-                    if(userArr[i].name != name){  // 避免同一用户多次添加
-                        userArr.push(user);
+            var arr = new Array();
+            arr.push(user);
 
-                        userNum = userNum + 1;
-                        sys_msg = name + '已经加入了房间';
+            console.log(arr);
 
-                        sys_obj.num = userNum;
-                        sys_obj.msg = sys_msg;
-                    }
+            for(var i=0;i<arr.length;i++){  // 删除数组里传重复添加元素
+                if(userArr.indexOf(arr[i]) == -1){
+                    userArr.push(arr[i]);
                 }
-            }else{
-                userArr.push(user);
-
-                userNum = 1;
-                sys_msg = name + '已经加入了房间';
-
-                sys_obj.num = userNum;
-                sys_obj.msg = sys_msg;
             }
 
+            sys_msg = name + '已经加入了房间';
+            sys_obj.num = userArr.length;
+            sys_obj.msg = sys_msg;
 
             console.log(sys_msg);
-
             socket.emit('system_msg', sys_obj);
             socket.broadcast.emit('broadcast',sys_msg);
     });
@@ -110,25 +100,8 @@ io.on('connection', function(socket){
     });
 
     // 断开连接
-    socket.on('disconnect',function (name) {
-
-        if(userArr.length != 0){
-            // 断开连接时，删除该用户
-            for(var i = 0;i<=userArr.length - 1;i++){
-                if(userArr[i].name == name){
-                    delete userArr[i];
-                }
-            }
-        }else{
-            userNum = 0;
-            sys_msg = name + '已经离开了房间';
-
-            sys_obj.num = userNum;
-            sys_obj.msg = sys_msg;
-        }
-
-
-        socket.broadcast.emit('broadcast',sys_msg);
+    socket.on('disconnect',function () {
+        socket.broadcast.emit('broadcast','离开房间');
     });
 
 });

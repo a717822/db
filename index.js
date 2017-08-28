@@ -53,16 +53,18 @@ var userArr = new Array();  // 用户数组
 
 io.on('connection', function(socket){
     console.log('服务器连接成功');
+    var addUser = false;
 
     // 用户加入群聊
     socket.on('add_user',function (name) {
-            var user = new Object();  // 用户信息
-            user.name = name;
-            user.socket = socket;
-            user.online = '在线';
-            userArr.push(user);
+            if(addUser){
+                return;
+            }
 
-            console.log(userArr);
+            addUser = true;
+            socket.name = name;
+            socket.online = '在线';
+            userArr.push(socket);
 
             sys_msg = name + '已经加入了房间';
             sys_obj.num = userArr.length;
@@ -93,7 +95,9 @@ io.on('connection', function(socket){
 
     // 断开连接
     socket.on('disconnect',function () {
-        socket.broadcast.emit('broadcast','离开房间');
+        if (addUser) {
+            socket.broadcast.emit('broadcast','离开房间');
+        }
     });
 
 });

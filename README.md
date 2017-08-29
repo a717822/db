@@ -28,3 +28,6 @@ nodejs+express+mysql+react+reactDom+socket.io
 
 2017-08-24
 更改添加到数据库方法，增加聊天时，添加到数据库的代码、获取历史聊天记录功能
+
+2017-08-29
+增加上传图片的功能

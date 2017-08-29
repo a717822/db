@@ -31,7 +31,8 @@
         getInitialState: function() {
             return {
                 num: 0,
-                msg: ''
+                msg: '',
+                user_id:''
             };
         },
 
@@ -44,6 +45,11 @@
 
         componentDidMount:function () {
             var userInfo = JSON.parse(localStorage.userInfo);
+
+            // 获取User_id
+            this.setState({
+               user_id: userInfo.id
+            });
 
             // 加入房间
             socket.emit('add_user',userInfo.username);
@@ -79,6 +85,13 @@
             return  <div>
                 <div>当前房间人数：{this.state.num}</div>
                 <div>广播：{this.state.msg}</div>
+                <div>
+                    <form method="post" action="/upload" encType="multipart/form-data">
+                        <input type="hidden" value={this.state.user_id} name="user_id" id="user_id" />
+                        <input type="file" name="avatar" />
+                        <input type="submit" />
+                    </form>
+                </div>
                 <div className="chatwindow">
                     <ul id="messages"></ul>
                     <div className="chatinput">

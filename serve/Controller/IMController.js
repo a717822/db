@@ -4,6 +4,9 @@
  * @constructor
  */
 var db = require("../db/db.js");
+var upload = require("../tool/upload.js");
+var fs = require('fs');
+
 
 var IM = function (params) {
     this.params = params;
@@ -64,6 +67,33 @@ var IM = function (params) {
             })
         }
     };
+
+    /**
+     * 上传用户图片
+     * @param callback 回调函数
+     */
+    this.uploadImg = function (callback) {
+        // 获取文件
+        var file = this.params.file;
+
+        // 获取user_id
+        var user_id = this.params.user_id;
+
+        var type = 'avater_' + user_id;
+        var filename = upload.upload(file,type);
+
+        var where = 'id = ' + user_id;
+        var set = 'useravatar=?';
+
+        db.database.db('admin').update(filename , set , where , function (data) {
+            if(data){
+                callback('图片上传成功');
+                fs.renameSync('./serve/upload/' + file.filename , './serve/upload/' + filename);
+            }else{
+                callback('图片上传失败');
+            }
+        })
+    }
 };
 
 exports.IMController = function (params) {

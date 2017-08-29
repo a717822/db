@@ -11,6 +11,9 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 8888;
 
+var multer = require('multer');
+var upload = multer({dest:'serve/upload/'});
+
 app.use(express.static(path.join(__dirname,'client')));
 
 app.get('/', function (req, res) {
@@ -45,6 +48,18 @@ app.post('/user_register',urlencodedParser,function (req,res) {
         res.json(data);
     })
 
+});
+
+// 用户图片上传
+app.post('/upload',upload.single('avatar'),function(req,res){
+    var response = {
+        user_id:req.body.user_id,
+        file:req.file
+    };
+
+    IM.IMController(response).uploadImg(function (data) {
+        res.send(data);
+    })
 });
 
 var sys_msg;    // 系统消息

@@ -118,8 +118,8 @@ sql.prototype.addData = function (v , callback) {
  * 删除数据
  * @param callback 回调函数
  */
-sql.prototype.delete = function (id , callback) {
-    sqlexpression = 'DELETE FROM '+ this.tableName + ' where id=' + id;
+sql.prototype.delete = function (where , callback) {
+    sqlexpression = 'DELETE FROM '+ this.tableName + ' where ' + where;
 
     sqlConnection(sqlexpression , function (data) {
         if(data.affectedRows == 1){  // 删除成功

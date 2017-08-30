@@ -32,7 +32,7 @@ function upload(file , type) {
         day = '0' + day;
     }
 
-    var  filename = year + month.toString() + day.toString() + type + mime;
+    var  filename = year + month.toString() + day.toString() + type + '.'+ mime;
 
     return filename;
 }

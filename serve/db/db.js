@@ -133,23 +133,36 @@ sql.prototype.delete = function (id , callback) {
 
 /**
  * 修改数据
- * @param v  修改的数据
- * @param set 需要修改的字段
+ * @param params 参数
  * @param where 在哪里修改
  * @param callback 回调函数
  */
-sql.prototype.update = function (v , set , where , callback) {
+sql.prototype.update = function (params , where , callback) {
 
-        sqlexpression = 'UPDATE '+this.tableName+' SET '+ set +' WHERE ' + where;
+    // 获取更新数据的对象的key
+    for (var p1 in params) {
+        if (params.hasOwnProperty(p1)){
+            keyName.push(p1);
+            value.push(params[p1]);
+        }
+    }
 
-        sqlParamsConnection(sqlexpression , v , function (data) {
-            if(data.affectedRows == 1){
-                callback (data);
-            }else{
-                callback ('');
-            }
-        });
+    var arr = [];
+    for(var i = 0;i<=keyName.length - 1;i++){
+        arr[i] = keyName[i] + '=?';
+    }
 
+    keyString = arr.join(',');
+
+    sqlexpression = 'UPDATE '+this.tableName+' SET '+ keyString +' WHERE ' + where;
+
+    sqlParamsConnection(sqlexpression , value , function (data) {
+        if(data.affectedRows == 1){
+            callback (data);
+        }else{
+            callback ('');
+        }
+    });
 };
 
 /**

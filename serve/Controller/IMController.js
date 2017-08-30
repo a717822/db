@@ -79,13 +79,15 @@ var IM = function (params) {
         // 获取user_id
         var user_id = this.params.user_id;
 
-        var type = 'avater_' + user_id;
+        var type = 'avatar_' + user_id;
         var filename = upload.upload(file,type);
 
-        var where = 'id = ' + user_id;
-        var set = 'useravatar=?';
+        var updateData = {
+            useravatar:filename
+        };
 
-        db.database.db('admin').update(filename , set , where , function (data) {
+        var where = 'id = ' + user_id;
+        db.database.db('admin').update(updateData, where , function (data) {
             if(data){
                 callback('图片上传成功');
                 fs.renameSync('./serve/upload/' + file.filename , './serve/upload/' + filename);

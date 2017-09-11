@@ -95,6 +95,19 @@ var IM = function (params) {
                 callback('图片上传失败');
             }
         })
+    };
+
+    /**
+     * 加入到一个房间
+     * @param callback 回调函数
+     */
+    this.CreateRoom = function (callback) {
+        var userInfo = this.params.user;
+
+        var s_id = userInfo.id;
+        var r_id = this.params.r_id;
+
+
     }
 };
 

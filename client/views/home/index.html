@@ -51,7 +51,7 @@
                user_id: userInfo.id
             });
 
-            // 加入房间
+            // 添加用户
             socket.emit('add_user',userInfo.username);
 
             // 获取新的消息
@@ -65,7 +65,7 @@
                 window.scrollTo(0, document.body.scrollHeight);
             });
 
-            // 退出房间
+            // 断开连接
             socket.emit('disconnect',userInfo.username);
 
             // 获取系统消息
@@ -150,6 +150,8 @@
             })
 
         },
+
+
 
     });
 

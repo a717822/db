@@ -102,10 +102,37 @@ var IM = function (params) {
      * @param callback 回调函数
      */
     this.CreateRoom = function (callback) {
-        var userInfo = this.params.user;
-
-        var s_id = userInfo.id;
+        var s_id = this.params.id;
         var r_id = this.params.r_id;
+
+        var ret = new Object();
+
+        if(s_id == ''){
+            ret.id = -1;
+            ret.msg = '发送者ID不得为空';
+
+            callback(ret);
+        }
+        if(r_id == ''){
+            ret.id = -1;
+            ret.msg = '接受者ID不得为空';
+
+            callback(ret);
+        }
+
+        var char_arr = ['0','1','2','3','4',
+            '5','6','7','8','9',
+            'A','B','C','D','E',
+            'F','G','H','I','J',
+            'K','L','M','N','O',
+            'P','Q','R','S','T',
+            'U','V','W','X','Y','Z',
+            'a','b','c','d','e',
+            'f','g','h','i','j',
+            'k','l','m','n','o',
+            'p','q','r','s','t',
+            'u','v','w','x','y','z'];
+        var roomName = '';
 
 
     }

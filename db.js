@@ -1,12 +1,10 @@
 // nodejs 连接数据库的方法
-var mysql =  require('mysql');
-var pool , sqlexpression , keyString , valueString;
-var keyName = [];
-var value = [];
-var sqlData = [];
+import mysql from 'mysql'
+
+let pool;
 
 // 获取配置信息
-var config = require('../Config/config');
+import config from '../Config/config'
 
 // 自动连接数据库,此为自执行函数
 (function init() {
@@ -19,258 +17,345 @@ var config = require('../Config/config');
     });
 })();
 
-/**
- * 得到数据表
- * @param tableName  数据表名
- */
-function sql(tableName) {
-    this.tableName = config.config.prefix + tableName;
+exports.sql = {
+    name: null,
+    w: null,
 
-    /**
-     * 查询对应的数据 / 可用来查询唯一性
-     * @param obj 需要查询的字段以及字段值
-     * eg: var query = {
-     *      username:'admin',
-     * }
-     * @param callback 回调函数
-     * @param order 排序
-     * eg: order = 'add_time';
-     * @param limit 分页参数
-     * eg: limit = '0,10';
-     */
-    this.querySql = function (obj , order , limit ,  callback) {
-        sqlexpression = 'SELECT * FROM ' + this.tableName;
+    table:function(newName){
+        this.name = config.config.prefix + newName;
+        return this;
+    },
 
-        if(obj){
-            var arr = [];
-            for (var key in obj) {
-                arr.push(key + "='" + obj[key] + "'");
+    where:function (where) {
+        if(where){
+            if(typeof where === 'object'){
+                let arr = [];
+                for (let key in where) {
+                    arr.push(key + "='" + where[key] + "'");
+                }
+
+                this.w = arr.join(' AND ');
+            }else{
+                this.w = where;
             }
 
-            var where = arr.join(' AND ');
+            return this;
+        }
 
-            sqlexpression += ' WHERE ' + where;
+    },
+
+    /**
+     * 查询数据库
+     * @param setting Obj
+     * setting = {
+     *      field:'',    // string
+     *      order:'',   // string
+     *      limit:'',  // string
+     * }
+     */
+    querySql: function(setting){
+        let sqlExpression;
+
+        setting = setting || {};
+        setting.field = setting.field || '';
+        setting.order = setting.order || '';
+        setting.limit = setting.limit || '';
+
+        if(setting.field){
+            sqlExpression = 'SELECT ' + setting.field +' FROM ' + this.name;
+        }else{
+            sqlExpression = 'SELECT * FROM ' + this.name;
+        }
+
+
+        if(setting.join){
+            sqlExpression += setting.join
+        }
+
+        if(this.w !== null){
+            sqlExpression += ' WHERE ' + this.w;
         }
 
         // 是否有排序参数
-        if(order){
-            sqlexpression += ' ORDER BY ' + order;
+        if(setting.order){
+            sqlExpression += ' ORDER BY ' + setting.order;
         }
 
         // 是否有分页参数
-        if(limit){
-            sqlexpression += ' LIMIT ' + limit;
+        if(setting.limit){
+            sqlExpression += ' LIMIT ' + setting.limit;
         }
 
-        sqlConnection(sqlexpression , function (data) {
-            if(data){
-                callback (data);
-            }else{
-                callback ('');
-            }
-        })
-    };
+        return  new Promise((resolve,reject) => {
 
-    /**
-     * 查询该数据库的数量
-     * @param callback 回调函数
-     * @param where
-     */
-    this.count = function (where , callback) {
-        sqlexpression = 'SELECT count(*) FROM ' + this.tableName;
+            pool.getConnection((err, connection)=>{
 
-        if(where){
-            sqlexpression += ' WHERE ' + where;
-        }
+                connection.query(sqlExpression , (err, result) => {
 
-        sqlConnection(sqlexpression ,function (data) {
-            if(data){
-                callback (data[0]['count(*)']);
-            }else{
-                callback ('');
-            }
-        })
-    };
+                    if(err){
+
+                        reject(new Error('查询失败：' + err.message));
+
+                    }else{
+
+                        // 将RowDataPacket对象装化成json字符串
+                        let string = JSON.stringify(result);
+
+                        // 将json字符串转化成json数组
+                        let data = JSON.parse(string);
+
+                        resolve (data);
+                    }
+
+                });
+
+                //释放数据库连接
+                connection.release();
+            })
+        }).then((json) =>{
+
+            this.w = null;
+            this.name = null;
+            return json;
+
+        }, (error) => {
+
+            throw new Error('查询失败：' + error);
+
+        });
+    },
 
     /**
      * 添加数据
-     * @param callback  回调函数
-     * @param obj  添加的对象
-     * eg: var add = {
+     * @param config  添加的对象
+     * eg: var obj = {
      *      username:'admin',
      *      password:'123456',
      *      add_time:'new Date()'
      * }
      * 需要注意：对象的key一定要和数据表的字段一致
      */
-    this.addData = function (obj , callback) {
+    addData:function(config){
+
+        let keyName = [] , sqlExpression ,
+            keyString , valueString , value = [] , sqlData = [];
+
         //  清空数组
         keyName.length = 0;
         sqlData.length = 0;
         value.length = 0;
 
-        var _this = this;
-
-        if(obj){
-            for (var key in obj) {
-                keyName.push(key);
-                sqlData.push(obj[key]);
-            }
-            keyString = '(' + keyName.join(',') + ')';
-            for(var i = 0;i<=keyName.length - 1;i++){
-                value.push('?');
-            }
-            valueString = '(' + value.join(',') + ')';
-
-            sqlexpression = 'INSERT INTO ' + _this.tableName + keyString + ' VALUES' + valueString;
-
-            sqlParamsConnection(sqlexpression , sqlData , function (data) {
-                if(data.affectedRows == 1){
-                    callback(JSON.stringify(data));
-                }else{
-                    callback(data);
-                }
-
-            });
+        for (let key in config) {
+            keyName.push(key);
+            sqlData.push(config[key]);
         }
-    };
+        keyString = '(' + keyName.join(',') + ')';
+
+        for(let i = 0; i < keyName.length;i++){
+            value.push('?');
+        }
+        valueString = '(' + value.join(',') + ')';
+
+        sqlExpression = 'INSERT INTO ' + this.name + keyString + ' VALUES' + valueString;
+
+        return new Promise((resolve, reject) => {
+            pool.getConnection(function(err, connection){
+                connection.query(sqlExpression , sqlData , function(err, result){
+
+                    if(err){
+                        reject(new Error('添加失败：' + err.message));
+                    }else{
+
+                        // 将RowDataPacket对象装化成json字符串
+                        let string = JSON.stringify(result);
+
+                        // 将json字符串转化成json数组
+                        let data = JSON.parse(string);
+
+                        if(data.affectedRows === 1){
+                            resolve(true);
+                        }else{
+                            resolve(false);
+                        }
+                    }
+                });
+
+                //释放数据库连接
+                connection.release();
+            });
+        }).then((data) =>{
+
+            return data;
+
+        }, (error) => {
+
+            throw new Error('添加失败：' + error);
+
+        });
+    },
+
+    /**
+     * 查询该数据库的数量
+     */
+    count:function () {
+        let sqlExpression;
+
+        sqlExpression = 'SELECT count(*) FROM ' + this.name;
+
+        if(this.w !== null){
+            sqlExpression += ' WHERE ' + this.w;
+        }
+
+        return new Promise((resolve, reject) => {
+
+            pool.getConnection((err, connection)=>{
+
+                connection.query(sqlExpression , (err, result) => {
+
+                    if(err){
+
+                        reject(new Error('查询失败：' + err.message));
+
+                    }else{
+
+                        // 将RowDataPacket对象装化成json字符串
+                        let string = JSON.stringify(result);
+
+                        // 将json字符串转化成json数组
+                        let data = JSON.parse(string);
+
+                        resolve (data[0]['count(*)']);
+                    }
+
+                });
+
+                //释放数据库连接
+                connection.release();
+            })
+        }).then((json) =>{
+
+            this.w = null;
+            this.name = null;
+            return json;
+
+        }, (error) => {
+
+            throw new Error('查询失败：' + error);
+
+        });
+    },
 
     /**
      * 删除数据
-     * @param obj 删除对象
-     * eg: var add = {
-     *      username:'admin2',
-     * }
-     * @param callback 回调函数
      */
-    this.delete = function (obj , callback) {
-        var del_arr = [];
-        if(obj){
-            for (var key in obj) {
-                del_arr.push(key+'='+obj[key]);
-            }
+    delete:function () {
+        let sqlExpression;
+
+        if(this.w !== null){
+            sqlExpression = 'DELETE FROM '+ this.name + ' where ' + this.w;
+        }else{
+            sqlExpression = 'DELETE FROM '+ this.name;
         }
-        var del_where = del_arr.join(',');
 
-        sqlexpression = 'DELETE FROM '+ this.tableName + ' where ' + del_where;
+        return new Promise((resolve, reject) => {
 
-        sqlConnection(sqlexpression , function (data) {
-            if(data.affectedRows == 1){  // 删除成功
-                callback (data);
-            }else{    // 删除失败
-                callback ('');
-            }
+            pool.getConnection((err, connection)=>{
+
+                connection.query(sqlExpression , (err, result) => {
+
+                    if(err){
+                        reject(new Error('删除失败：' + err.message));
+                    }else{
+
+                        // 将RowDataPacket对象装化成json字符串
+                        let string = JSON.stringify(result);
+
+                        // 将json字符串转化成json数组
+                        let data = JSON.parse(string);
+
+                        if(data.affectedRows === 1){
+                            resolve(true);
+                        }else{
+                            resolve(false);
+                        }
+                    }
+
+                })
+            })
+        }).then((data) =>{
+
+            return data;
+
+        }, (error) => {
+
+            throw new Error('删除失败：' + error);
 
         });
-    };
+    },
 
     /**
      * 修改数据
      * @param obj  修改的字段和数值
-     * eg: var add = {
+     * eg: var obj = {
      *      username:'admin2',
      * }
-     * @param where 在哪里修改
-     * eg:var where = {
-     *      id: id
-     * }
-     * @param callback 回调函数
      */
-    this.updateData = function (obj , where , callback) {
-        var _this = this;
-        keyName.length = 0;
-        sqlData.length = 0;
+    update:function (obj) {
+        let keyName = [] ,sqlData = [] , keyString ,sqlExpression;
 
-        if(obj){
-            for (var key in obj) {
-                keyName.push(key+'=?');
-                sqlData.push(obj[key]);
-            }
-            keyString = keyName.join(',');
-
-            // 获取where的key,和值
-            var w_key = [];
-            if(where){
-                for (var k in where) {
-                    w_key.push(k+'=?');
-                    sqlData.push(where[k]);
-                }
-            }
-            var w_keystr = w_key.join(',');
-
-            sqlexpression = 'UPDATE '+_this.tableName+' SET '+ keyString +' WHERE ' + w_keystr;
-
-            sqlParamsConnection(sqlexpression , sqlData , function (data) {
-                if(data.affectedRows == 1){
-                    callback (data);
-                }else{
-                    callback ('');
-                }
-            });
+        for (let key in obj) {
+            keyName.push(key+'=?');
+            sqlData.push(obj[key]);
         }
-    };
-}
+        keyString = keyName.join(',');
 
-/**
- * 数据连接池连接数据库(无参数)
- * @param sql  数据表达式
- * @param callback  回调函数
- */
-function sqlConnection(sql , callback) {
-    pool.getConnection(function(err, connection){
-            connection.query(sql ,  function(err, result){
+        // 获取where的key,和值
+        if(this.w !== null){
 
-                if(err){
-                    callback (err.message);
-                    return;
-                }
-
-                // 将RowDataPacket对象装化成json字符串
-                var string = JSON.stringify(result);
-
-                // 将json字符串转化成json数组
-                var data = JSON.parse(string);
-
-                callback (data);
-
-            });
-
-            //释放数据库连接
-            connection.release();
-    });
-}
-
-/**
- *
- * @param sql 数据表达式
- * @param params  参数
- * @param callback 回调函数
- */
-function sqlParamsConnection(sql , params , callback) {
-    pool.getConnection(function(err, connection){
-        connection.query(sql , params , function(err, result){
-
-            if(err){
-                callback (err.message);
-                return;
+            let reg = /\'(.*?)\'/;
+            let len = this.w.match(reg).length;
+            for(let i = 0;i<len;i++){
+                this.w = this.w.replace(this.w.match(reg)[0],'?');
+                sqlData.push(RegExp.$1)
             }
+        }
 
-            // 将RowDataPacket对象装化成json字符串
-            var string = JSON.stringify(result);
 
-            // 将json字符串转化成json数组
-            var data = JSON.parse(string);
+        sqlExpression = 'UPDATE '+ this.name +' SET '+ keyString +' WHERE ' + this.w;
 
-            callback (data);
+        return new Promise((resolve, reject) => {
+            pool.getConnection(function(err, connection){
+                connection.query(sqlExpression , sqlData , function(err, result){
+
+                    if(err){
+                        reject(new Error('修改失败：' + err.message));
+                    }else{
+
+                        // 将RowDataPacket对象装化成json字符串
+                        let string = JSON.stringify(result);
+
+                        // 将json字符串转化成json数组
+                        let data = JSON.parse(string);
+
+                        if(data.affectedRows === 1){
+                            resolve(true);
+                        }else{
+                            resolve(false);
+                        }
+                    }
+                });
+
+                //释放数据库连接
+                connection.release();
+            });
+        }).then((data) =>{
+
+            return data;
+
+        }, (error) => {
+
+            throw new Error('修改失败：' + error);
+
         });
-
-        //释放数据库连接
-        connection.release();
-    });
-}
-
-var db = function (tableName) {
-    return new sql(tableName);
+    }
 };
-
-exports.db = db;
